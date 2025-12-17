@@ -1,0 +1,73 @@
+# ------------------------
+# Python cache & artifacts
+# ------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# ------------------------
+# Virtual environments
+# ------------------------
+.venv/
+venv/
+env/
+ENV/
+.asra-env/
+*.conda
+*.yaml.lock
+
+# ------------------------
+# Conda & package manager
+# ------------------------
+conda-meta/
+conda-build/
+*.lock
+*.log
+
+# ------------------------
+# Jupyter + analysis files
+# ------------------------
+.ipynb_checkpoints/
+*.ipynb~
+
+# If you want to exclude generated notebooks:
+# notebooks/*.ipynb
+
+# ------------------------
+# Editor/IDE files
+# ------------------------
+.vscode/
+.idea/
+*.iml
+
+# ------------------------
+# OS-specific files
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Test outputs & caches
+# ------------------------
+.cache/
+pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ------------------------
+# Optional: plot outputs
+# ------------------------
+*.png
+*.svg
+*.pdf
