@@ -65,9 +65,3 @@ pytest_cache/
 htmlcov/
 coverage.xml
 
-# ------------------------
-# Optional: plot outputs
-# ------------------------
-*.png
-*.svg
-*.pdf
