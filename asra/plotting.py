@@ -75,7 +75,7 @@ def plot_asra_paper_data(data_path: str, outfile: str):
     axes[1].set_ylabel("Position 1 (ASRA)")
 
     # --- Colorbar: place to the right cleanly ---
-    cbar = fig.colorbar(im1, ax=axes, location="right", shrink=0.8)
+    cbar = fig.colorbar(im1, ax=axes, location="right", shrink=1.0)
     cbar.set_label("Activity / fitness")
 
     fig.savefig(outfile)
