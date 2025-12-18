@@ -63,7 +63,7 @@ The ordering of the (Q_m) values produces a **ranked list of states** for each p
 
 # 🚦 Two Implementations: `"paper"` and `"robust"`
 
-This package provides two variants of the ASRA Step-2 algorithm.
+This package provides two variants of the ASRA algorithm.
 
 ---
 

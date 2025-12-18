@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-from asra.core import asra_ordering
+from asra.core import asra_ordering, asra_orderings_multiblock
 
 data_path = os.path.join(os.path.dirname(__file__), "test_data", "asra_data.tsv")
 
@@ -122,3 +122,97 @@ def test_asra_ordering_is_close_to_table_1c_w1_robust():
     # tight, but not brittle: allow only a few near-tie swaps
     assert _kendall_inversion_distance(got_215, TABLE_1C_215) <= 2
     assert _kendall_inversion_distance(got_217, TABLE_1C_217) <= 3
+
+
+
+def test_multiblock_wrapper_consistency_uniform_levels():
+    """
+    asra_ordering (wrapper) should match asra_orderings_multiblock when all
+    positions have the same number of levels.
+    """
+    df = pd.read_csv(data_path, sep="\t")
+    X = df[["idxat215", "idxat217"]].to_numpy(int)
+    y = df["eAverage"].to_numpy(float)
+    sigma = df["eStd."].to_numpy(float)
+
+    levels = 20
+    levels_per_pos = [levels] * X.shape[1]
+
+    ordering_wrap, Q_wrap = asra_ordering(
+        X=X, y=y, levels=levels, sigma=sigma, w=1.0, mode="paper"
+    )
+
+    orderings_mb, Qs_mb = asra_orderings_multiblock(
+        X=X, y=y, levels_per_pos=levels_per_pos,
+        sigma=sigma, w=1.0, mode="paper"
+    )
+
+    # Compare column-by-column
+    for pos in range(X.shape[1]):
+        assert np.array_equal(ordering_wrap[:, pos], orderings_mb[pos])
+        assert np.allclose(Q_wrap[:, pos], Qs_mb[pos], equal_nan=True)
+
+
+def test_multiblock_supports_different_levels_per_pos():
+    """
+    Simple synthetic test where positions have different depths.
+    Ensures shapes and ordering are well-defined.
+
+    We choose y so that *smaller* values are better, consistent with the
+    convention that smaller Q_m corresponds to "better" states in our
+    implementation (ascending sort on Q).
+    """
+    # Position 0: 3 states, Position 1: 2 states
+    levels_per_pos = [3, 2]
+
+    # X[:,0] in {0,1,2}, X[:,1] in {0,1}
+    X = np.array([
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [0, 1],
+        [1, 1],
+        [2, 1],
+    ], dtype=int)
+
+    # Start from a grid where higher index is better, then negate so that
+    # "better" = more negative (smaller y).
+    y_raw = np.array([
+        0.0,  # (0,0)
+        1.0,  # (1,0)
+        2.0,  # (2,0)
+        0.5,  # (0,1)
+        1.5,  # (1,1)
+        2.5,  # (2,1)
+    ], dtype=float)
+
+    y = -y_raw  # smaller is better for ASRA's ascending-Q convention
+    sigma = np.full_like(y, 0.1, dtype=float)
+
+    orderings, Qs = asra_orderings_multiblock(
+        X=X,
+        y=y,
+        levels_per_pos=levels_per_pos,
+        sigma=sigma,
+        w=0.0,
+        mode="paper",
+        tau=0.0,
+    )
+
+    # Check lengths match levels_per_pos
+    assert len(orderings) == 2
+    assert orderings[0].shape[0] == 3
+    assert orderings[1].shape[0] == 2
+
+    # For pos0, we expect state 2 (best, most negative y) to rank ahead of 1, ahead of 0
+    ord0 = orderings[0]
+    idx_0 = np.where(ord0 == 0)[0][0]
+    idx_1 = np.where(ord0 == 1)[0][0]
+    idx_2 = np.where(ord0 == 2)[0][0]
+    assert idx_2 < idx_1 < idx_0
+
+    # For pos1, state 1 is always better (more negative) than state 0
+    ord1 = orderings[1]
+    idx_0_1 = np.where(ord1 == 0)[0][0]
+    idx_1_1 = np.where(ord1 == 1)[0][0]
+    assert idx_1_1 < idx_0_1
