@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import matplotlib.colors as mcolors
 from asra.core import asra_ordering
 
 
@@ -134,7 +134,7 @@ def plot_q_values(Qs, outfile="q_values.png", flip_states=True):
 
 
 
-def plot_state_rankings(Qs, orderings, outfile="state_rankings.png"):
+def plot_state_rankings(Qs, orderings, outfile="state_rankings.png", index_start: int = 0):
     """
     Visualize ASRA per-state rankings for each position.
 
@@ -143,8 +143,12 @@ def plot_state_rankings(Qs, orderings, outfile="state_rankings.png"):
     - cell color = ASRA Q-value (lower = better)
     - cell text = original state index (input encoding)
     """
+
     n_pos = len(Qs)
     max_states = max(len(Q) for Q in Qs)
+
+    # invert orderings so that rank 0 is at the top
+    orderings = [np.flip(o) for o in orderings]
 
     # Build grid of Q values in (rank, position) space
     # scores_grid[rank, pos] = Q-value of the state with that rank at that pos
@@ -157,14 +161,26 @@ def plot_state_rankings(Qs, orderings, outfile="state_rankings.png"):
 
     fig, ax = plt.subplots(figsize=(1.5 * n_pos, 6))
 
-    # rank 0 at top → origin="upper"
-    im = ax.imshow(scores_grid, cmap="viridis", aspect="auto", origin="upper")
+    # Determine vmin, vmax, and center at zero for divergent colormap
+    absmax = np.nanmax(np.abs(scores_grid))
+    vmin = -absmax
+    vmax = absmax
+
+    # Use a divergent colormap, e.g., "coolwarm" or "seismic"
+    norm = mcolors.TwoSlopeNorm(vcenter=0.0, vmin=vmin, vmax=vmax)
+    im = ax.imshow(
+        scores_grid, 
+        cmap="coolwarm", 
+        aspect="auto", 
+        origin="upper",
+        norm=norm,
+    )
 
     ax.set_xlabel("Position")
     ax.set_ylabel("Rank (0 = best)")
 
     ax.set_xticks(np.arange(n_pos))
-    ax.set_xticklabels([f"Pos {i}" for i in range(n_pos)], rotation=45, ha="right")
+    ax.set_xticklabels([f"Pos {i+1}" for i in range(n_pos)], rotation=45, ha="right")
 
     ax.set_yticks(np.arange(max_states))
     ax.set_yticklabels(np.arange(max_states))
@@ -177,11 +193,15 @@ def plot_state_rankings(Qs, orderings, outfile="state_rankings.png"):
             if np.isnan(val):
                 continue
             # choose text color for contrast
-            color = "white" if val > median_val else "black"
+            color = "black"
+            if index_start == 0:
+                state_index = state
+            else:
+                state_index = state + index_start
             ax.text(
                 pos,
                 rank,
-                str(state),
+                str(state_index),
                 ha="center",
                 va="center",
                 fontsize=7,
@@ -189,7 +209,7 @@ def plot_state_rankings(Qs, orderings, outfile="state_rankings.png"):
             )
 
     cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label("ASRA Q (lower = better)")
+    cbar.set_label("ASRA Q (higher = better)")
 
     ax.set_title("ASRA per-state rankings (numbers = input indices)")
 
