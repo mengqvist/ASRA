@@ -48,16 +48,17 @@ pip install -e .
 Given experimental data consisting of variants differing at one or more positions, ASRA computes a score
 
 $$
-Q_m = \sum_{m' \ne m} \sum_{n} \left( y_{m,n} - y_{m',n} \right), w_{m,n}, w_{m',n}
+Q_m \;=\; \sum_{m' \ne m} \; \sum_{n \in \mathcal{B}_{m,m'}} \Bigl( y_{m,n} - y_{m',n} \Bigr)\; w_{m,n}\; w_{m',n},
 $$
 
 where:
 
-* (y_{m,n}) is the measured property (e.g., fitness) of a variant with state (m) at the focal position and background (n),
-* comparisons are only made between variants with the same background (n),
-* (w_{m,n}) are weights reflecting measurement uncertainty (optional).
+* $y_{m,n}$ is the measured property (e.g., fitness) of a variant with state $m$ at the focal position and background $n$,
+* comparisons are only made for matched backgrounds: $\mathcal{B}_{m,m'}$ is the set of backgrounds $n$ where *both* $(m,n)$ and $(m',n)$ are observed,
+* $w_{m,n}$ are optional weights reflecting measurement uncertainty.
 
-The ordering of the (Q_m) values produces a **ranked list of states** for each position.
+Sorting the $Q_m$ values produces a **ranked list of states** for each position.
+
 
 ---
 
@@ -76,10 +77,20 @@ This implementation follows the method as described in the original paper as clo
 Weighting uses
 
 $$
-w_i = \frac{1}{1 + w \left( \frac{\sigma_i}{|y_i|} \right)},
+w_i \;=\; \frac{1}{1 + w \left(\frac{\sigma_i}{|y_i|}\right)},
 $$
 
-with a very small absolute epsilon to avoid division by zero.
+and in the original 2-position formulation the per-state score can be written as
+
+$$
+Q_m \;=\; \sum_{m' \ne m}\; \sum_{n=1}^{S_2}
+\left(a_{m n} - a_{m' n}\right)\,
+\frac{1}{1 + w\, s_{m n}}\,
+\frac{1}{1 + w\, s_{m' n}},
+$$
+
+where $a_{mn}$ is the observed property for the variant with focal state $m$ and background index $n$ (the other position), $s_{mn}$ is its relative standard deviation, and $w$ is a global weight factor.
+
 
 * No capping of large relative standard deviations.
 * No shrinkage — the Q values are literal weighted means of the observed pairwise differences.
@@ -155,12 +166,14 @@ print(ordering)
 ASRA naturally generalizes to libraries with more than two variable positions.
 After computing an ordering for each position:
 
-1. Convert each state to a **normalized rank** (0 = worst, 1 = best).
+1. Convert each state to a **normalized rank** ($0$ = worst, $1$ = best).
 2. For each genotype compute:
 
-   * (x = \mathrm{mean}(\text{rank})) → closeness to the best corner
-   * (y = 1 - \mathrm{var}(\text{rank})) → uniformity across positions
-3. Plot all genotypes in ((x, y)) and color by measured or predicted fitness.
+   * $x = \operatorname{mean}(\text{rank})$ → closeness to the best corner
+   * $y = 1 - \operatorname{var}(\text{rank})$ → uniformity across positions
+
+3. Plot all genotypes in $(x, y)$ and color by measured or predicted fitness.
+
 
 This preserves the ASRA intuition:
 **all variants are positioned relative to the high-fitness corner.**
