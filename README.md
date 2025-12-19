@@ -214,27 +214,6 @@ for pos, ordering in enumerate(orderings):
     print(f"pos {pos}: {ordering}")  # best → worst ordering of state IDs at that position
 ```
 
----
-
-# 📊 ASRA in Higher Dimensions
-
-ASRA naturally generalizes to libraries with more than two variable positions. After computing an ordering for each position:
-
-1. Convert each state to a **normalized rank** ($0$ = worst, $1$ = best).
-
-2. For each genotype compute:
-
-   * $x = \mathrm{mean}(\mathrm{rank})$  → closeness to the best corner  
-   * $y = 1 - \mathrm{var}(\mathrm{rank})$  → uniformity across positions
-
-3. Plot all genotypes in $(x, y)$ and color by measured or predicted fitness.
-
-
-This preserves the ASRA intuition:
-**all variants are positioned relative to the high-fitness corner.**
-
----
-
 # 📄 License
 
 MIT License.
