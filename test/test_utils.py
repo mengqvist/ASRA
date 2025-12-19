@@ -89,8 +89,10 @@ def test_rank_corner_coords_expected_values():
 
     # Mixed: pos0 rank=1, pos1 rank=0 => mean=0.5
     # var = ((1-0.5)^2 + (0-0.5)^2)/2 = 0.25/2 = 0.125 => y=1-0.125=0.875
+    # var = ((1-0.5)^2 + (0-0.5)^2)/2 = (0.25 + 0.25)/2 = 0.25
+    # y = 1 - var = 0.75
     assert np.isclose(x[idx_mixed], 0.5)
-    assert np.isclose(y[idx_mixed], 0.875)
+    assert np.isclose(y[idx_mixed], 0.75)
 
     # Best-best should have x >= any other genotype
     assert np.all(x[idx_best_best] >= x - 1e-12)
