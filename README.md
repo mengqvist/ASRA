@@ -77,17 +77,18 @@ This implementation follows the method as described in the original paper as clo
 Weighting uses
 
 $$
-w_i \;=\; \frac{1}{1 + w \left(\frac{\sigma_i}{|y_i|}\right)},
+w_i = \frac{1}{1 + w \left(\frac{\sigma_i}{|y_i|}\right)}.
 $$
+
 
 and in the original 2-position formulation the per-state score can be written as
 
 $$
-Q_m \;=\; \sum_{m' \ne m}\; \sum_{n=1}^{S_2}
-\left(a_{m n} - a_{m' n}\right)\,
-\frac{1}{1 + w\, s_{m n}}\,
-\frac{1}{1 + w\, s_{m' n}},
+Q_m = \sum_{m' \ne m} \sum_{n=1}^{S_2} (a_{mn} - a_{m'n})
+\cdot \frac{1}{1 + w s_{mn}}
+\cdot \frac{1}{1 + w s_{m'n}}.
 $$
+
 
 where $a_{mn}$ is the observed property for the variant with focal state $m$ and background index $n$ (the other position), $s_{mn}$ is its relative standard deviation, and $w$ is a global weight factor.
 
