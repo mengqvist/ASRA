@@ -112,7 +112,7 @@ A numerically stable, modernized implementation designed for **sparse experiment
 Prevents huge RSD values when signals are near zero:
 
 $$
-\varepsilon_{\mathrm{eff}} \;=\; \max\!\left(10^{-12},\; 0.05 \cdot \mathrm{median}(|y|)\right)
+\varepsilon_{\mathrm{eff}} = \max\!\left(10^{-12}, 0.05 \cdot \mathrm{median}(|y|)\right)
 $$
 
 
