@@ -47,8 +47,9 @@ mamba env create -f environment.yml
 Given experimental data consisting of variants differing at one or more positions, ASRA computes a score
 
 $$
-Q_m \;=\; \sum_{m' \ne m} \; \sum_{n \in \mathcal{B}_{m,m'}} \Bigl( y_{m,n} - y_{m',n} \Bigr)\; w_{m,n}\; w_{m',n},
+Q_m = \sum_{m' \ne m} \sum_{n \in \mathcal{B}_{m,m'}} (y_{m,n} - y_{m',n}) \cdot w_{m,n} \cdot w_{m',n}.
 $$
+
 
 where:
 
