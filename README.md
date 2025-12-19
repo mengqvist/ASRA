@@ -140,6 +140,21 @@ $$
 
 # 📦 Usage Example
 
+
+ASRA takes a set of measured variants and returns an ordering of states (best → worst) for one position, or for many positions at once.
+
+In the examples below:
+
+- `X` is an integer matrix of shape `(n_variants, n_positions)` where each entry is the **state ID** at that position.
+- `y` is the measured score/fitness for each variant (higher is better).
+- `sigma` is an optional per-variant uncertainty (same length as `y`) used for down-weighting noisy measurements.
+- `w` controls how strongly uncertainty affects weighting, and `mode="robust"` enables more conservative handling of noise/outliers.
+
+## Single-position ordering
+
+Use `asra_ordering` when you want the ordering for a library with the same number of states `levels` at each position. This is the simplest setting and is convenient for quick analyses or small libraries.
+
+
 ```python
 from asra.core import asra_ordering
 import numpy as np
@@ -159,6 +174,44 @@ ordering, Q = asra_ordering(
 )
 
 print(ordering)
+```
+
+
+## Multi-position / multiblock usage
+
+Use this when you have many variable positions where each may have a different number of levels.
+
+```python
+from asra.core import asra_orderings_multiblock
+import numpy as np
+
+# Each column is a position (block); each entry is a discrete state ID for that position.
+levels_per_pos = [3, 2, 4]  # pos0 has 3 states, pos1 has 2, pos2 has 4
+
+# Sparse measurements (not full factorial)
+X = np.array([
+    [0, 0, 1],
+    [2, 0, 1],
+    [2, 1, 1],
+    [2, 1, 3],
+    [1, 1, 0],
+], dtype=int)
+
+y = np.array([0.8, 1.4, 2.0, 1.7, 1.1], dtype=float)
+
+# Optional measurement uncertainty (same length as y)
+sigma = np.array([0.10, 0.15, 0.20, 0.12, 0.18], dtype=float)
+
+orderings, Qs = asra_orderings_multiblock(
+    X, y,
+    levels_per_pos=levels_per_pos,
+    sigma=sigma,
+    w=1.0,
+    mode="robust",
+)
+
+for pos, ordering in enumerate(orderings):
+    print(f"pos {pos}: {ordering}")  # best → worst ordering of state IDs at that position
 ```
 
 ---
