@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "asra"
+name = "ASRA"
 version = "0.1.0"
 description = "Adaptive Substituent Reordering Algorithm (ASRA) for enzyme engineering libraries"
 authors = [
@@ -18,3 +18,8 @@ dependencies = ["numpy"]   # Only core runtime dependency
 
 [project.urls]
 Homepage = "https://github.com/mengqvist/asra"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["asra*"]
+exclude = ["figures*", "test*"]

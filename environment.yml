@@ -9,3 +9,5 @@ dependencies:
   - matplotlib
   - pytest
   - pip
+  - pip:
+    - -e .
