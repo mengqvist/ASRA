@@ -38,7 +38,6 @@ Then:
 
 ```
 mamba env create -f environment.yml
-pip install -e .
 ```
 
 ---
@@ -112,9 +111,10 @@ A numerically stable, modernized implementation designed for **sparse experiment
 
 Prevents huge RSD values when signals are near zero:
 
-```
-eps_eff = max(1e-12, 0.05 * median(|y|))
-```
+$$
+\varepsilon_{\mathrm{eff}} \;=\; \max\!\left(10^{-12},\; 0.05 \cdot \mathrm{median}(|y|)\right)
+$$
+
 
 ### RSD capping
 
@@ -163,14 +163,14 @@ print(ordering)
 
 # 📊 ASRA in Higher Dimensions
 
-ASRA naturally generalizes to libraries with more than two variable positions.
-After computing an ordering for each position:
+ASRA naturally generalizes to libraries with more than two variable positions. After computing an ordering for each position:
 
 1. Convert each state to a **normalized rank** ($0$ = worst, $1$ = best).
+
 2. For each genotype compute:
 
-   * $x = \operatorname{mean}(\text{rank})$ → closeness to the best corner
-   * $y = 1 - \operatorname{var}(\text{rank})$ → uniformity across positions
+   * $x = \mathrm{mean}(\mathrm{rank})$  → closeness to the best corner  
+   * $y = 1 - \mathrm{var}(\mathrm{rank})$  → uniformity across positions
 
 3. Plot all genotypes in $(x, y)$ and color by measured or predicted fitness.
 
