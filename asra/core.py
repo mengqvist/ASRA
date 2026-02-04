@@ -35,6 +35,28 @@ def _build_point_weights(
     return 1.0 / (1.0 + w * rsd)
 
 
+def argsort_states_with_missing_last(Q: np.ndarray, *, higher_is_better: bool = False) -> np.ndarray:
+    """
+    Return state indices sorted by Q with non-finite (nan/inf) always at the end.
+    """
+    Q = np.asarray(Q, dtype=float)
+
+    good = np.isfinite(Q)
+    good_idx = np.where(good)[0]
+    bad_idx = np.where(~good)[0]
+
+    if good_idx.size == 0:
+        return bad_idx.astype(int)
+
+    # Sort good only; missing always last
+    if higher_is_better:
+        sorted_good = good_idx[np.argsort(-Q[good_idx])]  # descending
+    else:
+        sorted_good = good_idx[np.argsort(Q[good_idx])]   # ascending
+
+    return np.concatenate([sorted_good, bad_idx]).astype(int)
+
+
 def asra_orderings_multiblock(
     X: np.ndarray,
     y: np.ndarray,
@@ -164,9 +186,7 @@ def asra_orderings_multiblock(
                 Q[m] = np.nan
 
         # Sort states by Q (nan go to end)
-        good = np.where(~np.isnan(Q))[0]
-        bad = np.where(np.isnan(Q))[0]
-        ordering = np.concatenate([good[np.argsort(Q[good])], bad])
+        ordering = argsort_states_with_missing_last(Q, higher_is_better=False)
         orderings.append(ordering.astype(int))
         Qs.append(Q)
 
