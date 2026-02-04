@@ -177,13 +177,13 @@ def plot_state_rankings(Qs, orderings, outfile="state_rankings.png", index_start
     )
 
     ax.set_xlabel("Position")
-    ax.set_ylabel("Rank (0 = best)")
+    ax.set_ylabel("Rank (1 = best)")
 
     ax.set_xticks(np.arange(n_pos))
     ax.set_xticklabels([f"Pos {i+1}" for i in range(n_pos)], rotation=45, ha="right")
 
     ax.set_yticks(np.arange(max_states))
-    ax.set_yticklabels(np.arange(max_states))
+    ax.set_yticklabels(np.arange(max_states)+1)
 
     # Annotate each cell with the original state index
     median_val = np.nanmedian(scores_grid)

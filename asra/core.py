@@ -35,26 +35,27 @@ def _build_point_weights(
     return 1.0 / (1.0 + w * rsd)
 
 
-def argsort_states_with_missing_last(Q: np.ndarray, *, higher_is_better: bool = False) -> np.ndarray:
+def order_states_missing_first_worst_to_best(Q: np.ndarray, *, higher_is_better: bool = True) -> np.ndarray:
     """
-    Return state indices sorted by Q with non-finite (nan/inf) always at the end.
+    Return state indices ordered as:
+      [missing (nan/inf), worst ... best]
+
+    If higher_is_better=True: finite states are sorted ascending (low->high).
+    If higher_is_better=False: finite states are sorted descending (high->low).
     """
     Q = np.asarray(Q, dtype=float)
-
-    good = np.isfinite(Q)
-    good_idx = np.where(good)[0]
-    bad_idx = np.where(~good)[0]
+    good_idx = np.where(np.isfinite(Q))[0]
+    bad_idx = np.where(~np.isfinite(Q))[0]
 
     if good_idx.size == 0:
         return bad_idx.astype(int)
 
-    # Sort good only; missing always last
     if higher_is_better:
-        sorted_good = good_idx[np.argsort(-Q[good_idx])]  # descending
+        finite_sorted = good_idx[np.argsort(Q[good_idx])]    # worst -> best
     else:
-        sorted_good = good_idx[np.argsort(Q[good_idx])]   # ascending
+        finite_sorted = good_idx[np.argsort(-Q[good_idx])]   # worst -> best when lower is better
 
-    return np.concatenate([sorted_good, bad_idx]).astype(int)
+    return np.concatenate([bad_idx, finite_sorted]).astype(int)
 
 
 def asra_orderings_multiblock(
@@ -186,7 +187,8 @@ def asra_orderings_multiblock(
                 Q[m] = np.nan
 
         # Sort states by Q (nan go to end)
-        ordering = argsort_states_with_missing_last(Q, higher_is_better=False)
+        ordering = order_states_missing_first_worst_to_best(Q, higher_is_better=True)
+        # ordering = invert_ordering_keep_missing_last(ordering, Q)
         orderings.append(ordering.astype(int))
         Qs.append(Q)
 
